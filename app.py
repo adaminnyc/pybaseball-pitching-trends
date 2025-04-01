@@ -8,7 +8,7 @@ from pybaseball import statcast_pitcher
 from pybaseball import playerid_lookup
 
 # Set figure size globally for consistent plots
-plt.rcParams['figure.figsize'] = [15, 6]
+plt.rcParams['figure.figsize'] = [15, 8]
 
 # Define pitch type mapping
 pitch_types = {
@@ -64,6 +64,11 @@ if len(df) == 0:
     print(f"No data available for {player_name} in {season}")
     exit()
 
+# Calculate game appearances and innings pitched
+unique_games = df['game_date'].nunique()
+outs_per_inning = df.groupby('game_date').agg({'inning': 'max', 'outs_when_up': 'last'})
+total_innings = outs_per_inning['inning'].sum() + (outs_per_inning['outs_when_up'].sum() / 3)
+
 # Select relevant columns
 df = df[['game_date', 'pitch_type', 'release_speed', 'release_spin_rate']]
 
@@ -77,49 +82,82 @@ if len(df) == 0:
     print("No valid pitch data available after cleaning")
     exit()
 
+# Calculate average velocity per pitch type
+avg_velocity = df.groupby('pitch_type')['release_speed'].mean().round(1)
+
 # Map pitch types to full names
 df['pitch_type'] = df['pitch_type'].map(pitch_types)
+avg_velocity.index = avg_velocity.index.map(pitch_types)
 
-# Create week number for grouping (starting from the first week of the season)
-df['week'] = (df['game_date'] - df['game_date'].min()).dt.days // 7 + 1
-df['week'] = 'Week ' + df['week'].astype(str)
-
-# Count each pitch type per week
-pitch_usage = df.groupby(['week', 'pitch_type']).size().unstack()
+# Count pitches by type for each game appearance
+pitch_usage = df.groupby(['game_date', 'pitch_type']).size().unstack(fill_value=0)
 
 if len(pitch_usage) == 0:
     print("No pitch usage data available")
     exit()
 
-# Create and show the first plot
-ax = pitch_usage.plot(kind='line', marker='o')
-plt.title(f"{player_name}: Pitch Usage Evolution ({season})")
-plt.xlabel("Week of Season")
-plt.ylabel("Number of Pitches")
-plt.legend(title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.grid(True)
-plt.xticks(rotation=45)  # Rotate labels for better readability
-plt.tight_layout()  # Adjust layout to prevent label cutoff
-plt.show()
+# Function to create plot with stats
+def create_plot_with_stats(plot_func, title, ylabel):
+    plt.figure(figsize=(15, 8))
+    
+    # Create main plot
+    ax = plt.subplot2grid((5, 1), (0, 0), rowspan=4)  # Increased rowspan for more space
+    plot_func(ax)
+    plt.title(title)
+    plt.xlabel("Game Date")
+    plt.ylabel(ylabel)
+    
+    # Update legend labels to include average velocity
+    legend_labels = []
+    for pitch_type in pitch_types.values():
+        if pitch_type in avg_velocity.index:
+            velocity = avg_velocity[pitch_type]
+            legend_labels.append(f"{pitch_type} ({velocity} mph)")
+    
+    # Get the legend handles and update labels
+    handles, _ = ax.get_legend_handles_labels()
+    ax.legend(handles, legend_labels, title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
+    
+    plt.grid(True)
+    plt.xticks(rotation=45)
+    
+    # Add stats text
+    stats_ax = plt.subplot2grid((5, 1), (4, 0))  # Moved stats to bottom row
+    stats_ax.axis('off')
+    
+    # Create statistics text
+    basic_stats = f"Season Statistics:\nGame Appearances: {unique_games}\nInnings Pitched: {total_innings:.1f}\n"
+    stats_ax.text(0.5, 0.5, basic_stats, ha='center', va='center', fontsize=10)
+    
+    plt.tight_layout()
+    plt.show()
 
-# Create and show the second plot
-plt.figure()
-sns.lineplot(data=df, x='game_date', y='release_speed', hue='pitch_type', ci=None)
-plt.title(f"{player_name}: Pitch Velocity Over Time ({season})")
-plt.xlabel("Date")
-plt.ylabel("Velocity (mph)")
-plt.legend(title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.grid(True)
-plt.tight_layout()  # Adjust layout to prevent label cutoff
-plt.show()
+# Create and show the first plot (Pitch Usage)
+def plot_pitch_usage(ax):
+    pitch_usage.plot(kind='line', marker='o', ax=ax)
 
-# Create and show the third plot
-plt.figure()
-sns.lineplot(data=df, x='game_date', y='release_spin_rate', hue='pitch_type', ci=None)
-plt.title(f"{player_name}: Pitch Spin Rate Over Time ({season})")
-plt.xlabel("Date")
-plt.ylabel("Spin Rate (rpm)")
-plt.legend(title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.grid(True)
-plt.tight_layout()  # Adjust layout to prevent label cutoff
-plt.show()
+create_plot_with_stats(
+    plot_pitch_usage,
+    f"{player_name}: Pitch Usage by Game ({season})",
+    "Number of Pitches"
+)
+
+# Create and show the second plot (Velocity)
+def plot_velocity(ax):
+    sns.lineplot(data=df, x='game_date', y='release_speed', hue='pitch_type', ci=None, marker='o', ax=ax)
+
+create_plot_with_stats(
+    plot_velocity,
+    f"{player_name}: Pitch Velocity by Game ({season})",
+    "Velocity (mph)"
+)
+
+# Create and show the third plot (Spin Rate)
+def plot_spin_rate(ax):
+    sns.lineplot(data=df, x='game_date', y='release_spin_rate', hue='pitch_type', ci=None, marker='o', ax=ax)
+
+create_plot_with_stats(
+    plot_spin_rate,
+    f"{player_name}: Pitch Spin Rate by Game ({season})",
+    "Spin Rate (rpm)"
+)
