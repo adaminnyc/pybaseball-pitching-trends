@@ -9,8 +9,8 @@ A Python script to analyze MLB pitcher data using the PyBaseball library. This s
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
-cd <repo-name>
+git clone https://github.com/adaminnyc/pybaseball-pitching-trends.git
+cd pybaseball-pitching-trends
 ```
 
 2. Install the required packages:
@@ -31,4 +31,4 @@ The script will generate three plots showing different aspects of the pitcher's 
 3. A line plot showing spin rate trends
 
 ## Data Source
-Data is fetched using the PyBaseball library, which sources its data from Baseball Savant..
+Data is fetched using the PyBaseball library, which sources its data from Baseball Savant.
