@@ -64,10 +64,6 @@ if len(df) == 0:
     print(f"No data available for {player_name} in {season}")
     exit()
 
-# Calculate game appearances and innings pitched
-unique_games = df['game_date'].nunique()
-outs_per_inning = df.groupby('game_date').agg({'inning': 'max', 'outs_when_up': 'last'})
-total_innings = outs_per_inning['inning'].sum() + (outs_per_inning['outs_when_up'].sum() / 3)
 
 # Select relevant columns
 df = df[['game_date', 'pitch_type', 'release_speed', 'release_spin_rate']]
