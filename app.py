@@ -40,7 +40,7 @@ if len(pitch_usage) == 0:
 
 # Create and show the first plot
 plt.figure(figsize=(10, 6))
-pitch_usage.plot(kind='line', marker='o', cmap='tab10')
+pitch_usage.plot(kind='line', marker='o')
 plt.title(f"{player_name}: Pitch Usage Evolution (2024)")
 plt.xlabel("Month")
 plt.ylabel("Number of Pitches")
@@ -51,7 +51,7 @@ plt.show()
 
 # Create and show the second plot
 plt.figure(figsize=(12, 5))
-sns.lineplot(data=df, x='game_date', y='release_speed', hue='pitch_type', palette='tab10')
+sns.lineplot(data=df, x='game_date', y='release_speed', hue='pitch_type', ci=None)
 plt.title(f"{player_name}: Pitch Velocity Over Time (2024)")
 plt.xlabel("Date")
 plt.ylabel("Velocity (mph)")
@@ -61,7 +61,7 @@ plt.show()
 
 # Create and show the third plot
 plt.figure(figsize=(12, 5))
-sns.lineplot(data=df, x='game_date', y='release_spin_rate', hue='pitch_type', palette='tab10')
+sns.lineplot(data=df, x='game_date', y='release_spin_rate', hue='pitch_type', ci=None)
 plt.title(f"{player_name}: Pitch Spin Rate Over Time (2024)")
 plt.xlabel("Date")
 plt.ylabel("Spin Rate (rpm)")
