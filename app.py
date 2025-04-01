@@ -82,12 +82,14 @@ if len(df) == 0:
     print("No valid pitch data available after cleaning")
     exit()
 
-# Calculate average velocity per pitch type
+# Calculate average velocity and spin rate per pitch type
 avg_velocity = df.groupby('pitch_type')['release_speed'].mean().round(1)
+avg_spin_rate = df.groupby('pitch_type')['release_spin_rate'].mean().round(0)
 
 # Map pitch types to full names
 df['pitch_type'] = df['pitch_type'].map(pitch_types)
 avg_velocity.index = avg_velocity.index.map(pitch_types)
+avg_spin_rate.index = avg_spin_rate.index.map(pitch_types)
 
 # Count pitches by type for each game appearance
 pitch_usage = df.groupby(['game_date', 'pitch_type']).size().unstack(fill_value=0)
@@ -107,27 +109,24 @@ def create_plot_with_stats(plot_func, title, ylabel):
     plt.xlabel("Game Date")
     plt.ylabel(ylabel)
     
-    # Update legend labels to include average velocity
+    # Update legend labels to include average velocity and spin rate
     legend_labels = []
     for pitch_type in pitch_types.values():
         if pitch_type in avg_velocity.index:
             velocity = avg_velocity[pitch_type]
-            legend_labels.append(f"{pitch_type} ({velocity} mph)")
+            spin_rate = avg_spin_rate[pitch_type]
+            legend_labels.append(f"{pitch_type}\n({velocity} mph, {spin_rate:.0f} rpm)")
     
     # Get the legend handles and update labels
     handles, _ = ax.get_legend_handles_labels()
-    ax.legend(handles, legend_labels, title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
+    legend = ax.legend(handles, legend_labels, title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
+    
+    # Add season statistics below the legend
+    basic_stats = f"Season Statistics:\nGame Appearances: {unique_games}\nInnings Pitched: {total_innings:.1f}"
+    ax.text(1.05, 0.5, basic_stats, transform=ax.transAxes, fontsize=10, va='top')
     
     plt.grid(True)
     plt.xticks(rotation=45)
-    
-    # Add stats text
-    stats_ax = plt.subplot2grid((5, 1), (4, 0))  # Moved stats to bottom row
-    stats_ax.axis('off')
-    
-    # Create statistics text
-    basic_stats = f"Season Statistics:\nGame Appearances: {unique_games}\nInnings Pitched: {total_innings:.1f}\n"
-    stats_ax.text(0.5, 0.5, basic_stats, ha='center', va='center', fontsize=10)
     
     plt.tight_layout()
     plt.show()
