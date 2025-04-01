@@ -109,17 +109,22 @@ def create_plot_with_stats(plot_func, title, ylabel):
     plt.xlabel("Game Date")
     plt.ylabel(ylabel)
     
-    # Update legend labels to include average velocity and spin rate
-    legend_labels = []
-    for pitch_type in pitch_types.values():
+    # Get the actual handles and labels from the plot
+    handles, labels = ax.get_legend_handles_labels()
+    
+    # Create a mapping of pitch types to their stats
+    legend_labels = {}
+    for pitch_type in df['pitch_type'].unique():  # Only include pitch types that exist in the data
         if pitch_type in avg_velocity.index:
             velocity = avg_velocity[pitch_type]
             spin_rate = avg_spin_rate[pitch_type]
-            legend_labels.append(f"{pitch_type}\n({velocity} mph, {spin_rate:.0f} rpm)")
+            legend_labels[pitch_type] = f"{pitch_type}\n({velocity} mph, {spin_rate:.0f} rpm)"
     
-    # Get the legend handles and update labels
-    handles, _ = ax.get_legend_handles_labels()
-    legend = ax.legend(handles, legend_labels, title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
+    # Update the labels in the same order as they appear in the plot
+    updated_labels = [legend_labels[label] for label in labels]
+    
+    # Create legend with the updated labels
+    legend = ax.legend(handles, updated_labels, title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
     
     # Add season statistics below the legend
     basic_stats = f"Season Statistics:\nGame Appearances: {unique_games}\nInnings Pitched: {total_innings:.1f}"
