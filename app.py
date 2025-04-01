@@ -10,6 +10,7 @@ from pybaseball import playerid_lookup
 # Lookup player ID (Example: Gerrit Cole)
 player = playerid_lookup('crochet', 'garrett')
 pitcher_id = player['key_mlbam'].values[0]  # Get MLBAM ID
+player_name = "Garrett Crochet"  # Store player name for plot titles
 
 # Get pitch data for the complete 2024 season
 df = statcast_pitcher('2024-03-28', '2024-10-01', pitcher_id)
@@ -40,7 +41,7 @@ if len(pitch_usage) == 0:
 # Create and show the first plot
 plt.figure(figsize=(10, 6))
 pitch_usage.plot(kind='line', marker='o', cmap='tab10')
-plt.title("Pitch Usage Evolution (2024)")
+plt.title(f"{player_name}: Pitch Usage Evolution (2024)")
 plt.xlabel("Month")
 plt.ylabel("Number of Pitches")
 plt.legend(title="Pitch Type")
@@ -51,9 +52,9 @@ plt.show()
 # Create and show the second plot
 plt.figure(figsize=(12, 5))
 sns.lineplot(data=df, x='game_date', y='release_speed', hue='pitch_type', palette='tab10')
-plt.title('Pitch Velocity Over Time (2024)')
-plt.xlabel('Date')
-plt.ylabel('Velocity (mph)')
+plt.title(f"{player_name}: Pitch Velocity Over Time (2024)")
+plt.xlabel("Date")
+plt.ylabel("Velocity (mph)")
 plt.legend(title="Pitch Type")
 plt.tight_layout()  # Adjust layout to prevent label cutoff
 plt.show()
@@ -61,9 +62,9 @@ plt.show()
 # Create and show the third plot
 plt.figure(figsize=(12, 5))
 sns.lineplot(data=df, x='game_date', y='release_spin_rate', hue='pitch_type', palette='tab10')
-plt.title('Pitch Spin Rate Over Time (2024)')
-plt.xlabel('Date')
-plt.ylabel('Spin Rate (rpm)')
+plt.title(f"{player_name}: Pitch Spin Rate Over Time (2024)")
+plt.xlabel("Date")
+plt.ylabel("Spin Rate (rpm)")
 plt.legend(title="Pitch Type")
 plt.tight_layout()  # Adjust layout to prevent label cutoff
 plt.show()
