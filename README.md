@@ -25,7 +25,7 @@ Run the script with:
 python app.py
 ```
 
-The script will generate three plots showing different aspects of the pitcher's performance during the 2024 MLB season:
+The script will prompt for a pitcher's name and season and will then generate three plots showing different aspects of the pitcher's performance during the 2024 MLB season:
 1. A line plot showing the evolution of pitch type usage by month
 2. A line plot showing pitch velocity trends
 3. A line plot showing spin rate trends
