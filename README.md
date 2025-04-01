@@ -18,6 +18,16 @@ cd pybaseball-pitching-trends
 pip install -r requirements.txt
 ```
 
+If using venv follow these steps.
+
+Clone the repository:
+```bash
+git clone https://github.com/adaminnyc/pybaseball-pitching-trends.git
+cd pybaseball-pitching-trends
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 ## Usage ##
 
 Run the script with:
