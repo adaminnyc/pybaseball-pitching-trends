@@ -31,4 +31,4 @@ The script will generate three plots showing different aspects of the pitcher's 
 3. A line plot showing spin rate trends
 
 ## Data Source
-Data is fetched using the PyBaseball library, which sources its data from Baseball Savant. 
+Data is fetched using the PyBaseball library, which sources its data from Baseball Savant..
