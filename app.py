@@ -126,10 +126,6 @@ def create_plot_with_stats(plot_func, title, ylabel):
     # Create legend with the updated labels
     legend = ax.legend(handles, updated_labels, title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
     
-    # Add season statistics below the legend
-    basic_stats = f"Season Statistics:\nGame Appearances: {unique_games}\nInnings Pitched: {total_innings:.1f}"
-    ax.text(1.05, 0.5, basic_stats, transform=ax.transAxes, fontsize=10, va='top')
-    
     plt.grid(True)
     plt.xticks(rotation=45)
     
