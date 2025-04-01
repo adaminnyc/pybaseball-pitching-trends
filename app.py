@@ -7,6 +7,21 @@ import seaborn as sns
 from pybaseball import statcast_pitcher
 from pybaseball import playerid_lookup
 
+# Set figure size globally for consistent plots
+plt.rcParams['figure.figsize'] = [15, 6]
+
+# Define pitch type mapping
+pitch_types = {
+    'FF': 'Four-Seam Fastball',
+    'SI': 'Sinker',
+    'CH': 'Changeup',
+    'SL': 'Slider',
+    'CU': 'Curveball',
+    'FC': 'Cutter',
+    'ST': 'Sweeper',
+    'FS': 'Splitter'
+}
+
 # Lookup player ID (Example: Gerrit Cole)
 player = playerid_lookup('crochet', 'garrett')
 pitcher_id = player['key_mlbam'].values[0]  # Get MLBAM ID
@@ -30,41 +45,48 @@ df = df.dropna()
 if len(df) == 0:
     exit()
 
-df['month'] = df['game_date'].dt.to_period('M')  # Group by month
+# Map pitch types to full names
+df['pitch_type'] = df['pitch_type'].map(pitch_types)
 
-# Count each pitch type per month
-pitch_usage = df.groupby(['month', 'pitch_type']).size().unstack()
+# Create week number for grouping (starting from the first week of the season)
+df['week'] = (df['game_date'] - df['game_date'].min()).dt.days // 7 + 1
+df['week'] = 'Week ' + df['week'].astype(str)
+
+# Count each pitch type per week
+pitch_usage = df.groupby(['week', 'pitch_type']).size().unstack()
 
 if len(pitch_usage) == 0:
     exit()
 
 # Create and show the first plot
-plt.figure(figsize=(10, 6))
-pitch_usage.plot(kind='line', marker='o')
+ax = pitch_usage.plot(kind='line', marker='o')
 plt.title(f"{player_name}: Pitch Usage Evolution (2024)")
-plt.xlabel("Month")
+plt.xlabel("Week of Season")
 plt.ylabel("Number of Pitches")
-plt.legend(title="Pitch Type")
+plt.legend(title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.grid(True)
+plt.xticks(rotation=45)  # Rotate labels for better readability
 plt.tight_layout()  # Adjust layout to prevent label cutoff
 plt.show()
 
 # Create and show the second plot
-plt.figure(figsize=(12, 5))
+plt.figure()
 sns.lineplot(data=df, x='game_date', y='release_speed', hue='pitch_type', ci=None)
 plt.title(f"{player_name}: Pitch Velocity Over Time (2024)")
 plt.xlabel("Date")
 plt.ylabel("Velocity (mph)")
-plt.legend(title="Pitch Type")
+plt.legend(title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(True)
 plt.tight_layout()  # Adjust layout to prevent label cutoff
 plt.show()
 
 # Create and show the third plot
-plt.figure(figsize=(12, 5))
+plt.figure()
 sns.lineplot(data=df, x='game_date', y='release_spin_rate', hue='pitch_type', ci=None)
 plt.title(f"{player_name}: Pitch Spin Rate Over Time (2024)")
 plt.xlabel("Date")
 plt.ylabel("Spin Rate (rpm)")
-plt.legend(title="Pitch Type")
+plt.legend(title="Pitch Type", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(True)
 plt.tight_layout()  # Adjust layout to prevent label cutoff
 plt.show()
