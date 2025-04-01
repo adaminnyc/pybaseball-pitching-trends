@@ -18,7 +18,7 @@ cd pybaseball-pitching-trends
 pip install -r requirements.txt
 ```
 
-## Usage
+## Usage ##
 
 Run the script with:
 ```bash
